@@ -329,7 +329,9 @@ int main(int argc, char *argv[])
 void *handleRequest(void* arg)
 {
     /* 线程分离 */
-    if (pthread_detach(pthread_self()) != 0)
+    int temp = pthread_detach(pthread_self());
+    // printf("temp:%d\n", temp);
+    if (temp != 0 && temp != 22)    // 22表明线程已经处于分离状态
     {
         perror("pthread_detach error");
         return NULL;
