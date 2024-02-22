@@ -141,6 +141,9 @@ int main(int argc, char *argv[])
     }
     printf("server start success\n");
 
+    /* 启动mysql */
+    system("systemctl start mysql");
+
     /* 初始化数据库 */
     MYSQL *mysql = mysql_init(NULL);
     if (mysql == NULL)
