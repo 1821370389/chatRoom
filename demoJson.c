@@ -6,6 +6,7 @@
 
 /* json 库测试 */
 /* 
+    安装 sudo apt-get install -y libjson-c-dev
     json是外来库，编译时要+ -ljson-c
 */
 
