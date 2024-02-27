@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <time.h>
 #include <json-c/json.h>
+#include <openssl/md5.h>
 
 /* 状态码 */
 enum STATUS_CODE
@@ -434,6 +435,9 @@ int ChatRoomShowFriends(int sockfd, json_object* friends, const char *username, 
             {
                 printf("请输入要私聊的好友:");
                 scanf("%s", name);
+                /* 清空缓存区 */
+                int c;
+                while ((c = getchar()) != '\n' && c != EOF);
                 /* 判断是否存在好友 */
                 if(json_object_object_get(friends, name) == NULL)
                 {
@@ -485,7 +489,7 @@ int ChatRoomDelFriend(int sockfd, const char *name, json_object *friends, const 
 /* 私聊 */
 int ChatRoomPrivateChat(int sockfd, const char *name, json_object *friends, const char *username, const char * path)
 {
-    char message[CONTENT_SIZE] = "\n";
+    char message[CONTENT_SIZE] = {0};
     while( strcmp(message, "") != 0)
     {
         printf("path:%s\n",path);
@@ -517,9 +521,6 @@ int ChatRoomPrivateChat(int sockfd, const char *name, json_object *friends, cons
 
 
         printf("请输入要私聊的内容:\n");
-        /* 清空缓存区 */
-        int c;
-        while ((c = getchar()) != '\n' && c != EOF);
         /* 使用 fgets 读取整行输入 */
         if (fgets(message, sizeof(message), stdin) == NULL) 
         {
@@ -798,8 +799,8 @@ static void* ChatRoomRecvMsg(void* args)
                 char privateChatRecordPath[PATH_SIZE] = {0};
                 JoinPath(privateChatRecordPath, path, groupName);
                 /* 未读消息数+1 */
-                const int unread = json_object_get_int(json_object_object_get(friends, groupName));
-                json_object_object_add(friends, groupName, json_object_new_int(unread + 1));
+                const int unread = json_object_get_int(json_object_object_get(groups, groupName));
+                json_object_object_add(groups, groupName, json_object_new_int(unread + 1));
                 /* 加锁 */
                 pthread_mutex_lock(&mutex);
                 /* 打开群聊的本地聊天记录文件 */
@@ -938,6 +939,9 @@ int ChatRoomShowGroupChat(int sockfd, json_object *groups, const char *username,
                 /* 群聊 */
                 printf("请输入要群聊的群组:");
                 scanf("%s", name);
+                /* 清空缓存区 */
+                int c;
+                while ((c = getchar()) != '\n' && c != EOF);
                 ChatRoomGroupChat(sockfd, name, groups, username, path);
                 memset(name, 0, NAME_SIZE);
                 break;
